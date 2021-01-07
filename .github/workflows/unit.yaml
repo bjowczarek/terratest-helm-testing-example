@@ -1,0 +1,27 @@
+name: Unit Tests
+on: push
+jobs:
+  go-tests:
+    name: Run Terratest Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Create local bin
+        run: mkdir -p $HOME/.local/bin
+      - name: Add local PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Setup gotestsum
+        run: |
+          curl -sSL "https://github.com/gotestyourself/gotestsum/releases/download/v0.6.0/gotestsum_0.6.0_linux_amd64.tar.gz" \
+              | tar xz -C $HOME/.local/bin
+          chmod +x $HOME/.local/bin/gotestsum
+          gotestsum --version
+      - name: Download Go Modules
+        working-directory: test
+        run: go mod download
+      - name: Run Go Tests
+        working-directory: test
+        run: gotestsum --format testname --junitfile unit-tests.xml -- -tags=unit

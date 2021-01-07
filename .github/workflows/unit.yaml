@@ -25,3 +25,9 @@ jobs:
       - name: Run Go Tests
         working-directory: test
         run: gotestsum --format testname --junitfile unit-tests.xml -- -tags=unit
+      - name: Publish test report
+        if: always()
+        uses: scacap/action-surefire-report@v1.0.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: "**/*-tests.xml"
